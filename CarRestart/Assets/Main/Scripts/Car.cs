@@ -1,27 +1,25 @@
+using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using TMPro;
 
 public class Car : MonoBehaviour
 {
-    [Header("Movement")]
-    [SerializeField] float maxSpeed = 13f;
+    [SerializeField] float speed = 13f;
     [SerializeField] float turnSpeed = 180f;
     [SerializeField] float acceleration = 5f;
     [SerializeField] float brakePower = 20f;
     [SerializeField] float driftTurnMultiplier = 2f;
 
-    [Header("Brake Lights")]
     [SerializeField] GameObject[] brakelights;
-
-    [Header("Audio Sources")]
-    [SerializeField] AudioSource idleSound;
-    [SerializeField] AudioSource accelerateSound;
-    [SerializeField] AudioSource brakeSound;
-    [SerializeField] AudioSource driftSound;
+    [SerializeField] TextMeshPro speedText;
 
     private float currentSpeed = 0f;
     public InputAction move;
-    public InputAction brake;   
+    public InputAction brake;
+
+  
 
     void OnEnable()
     {
@@ -40,12 +38,16 @@ public class Car : MonoBehaviour
         Vector2 input = move.ReadValue<Vector2>();
         bool braking = brake.ReadValue<float>() > 0.1f;
 
-        float targetSpeed = input.y * maxSpeed;
+        float targetSpeed = input.y * speed;
 
         if (braking)
+        {
             currentSpeed = Mathf.MoveTowards(currentSpeed, 0, brakePower * Time.deltaTime);
+        }
         else
+        {
             currentSpeed = Mathf.MoveTowards(currentSpeed, targetSpeed, acceleration * Time.deltaTime);
+        }
 
         transform.Translate(Vector3.forward * currentSpeed * Time.deltaTime);
 
@@ -57,53 +59,15 @@ public class Car : MonoBehaviour
         foreach (var light in brakelights)
             light.SetActive(braking);
 
-        // --- Sound handling ---
-        HandleSounds(input, braking, actualTurnSpeed);
-    }
-
-    private void HandleSounds(Vector2 input, bool braking, float turnSpeed)
-    {
-        // Idle
-        if (Mathf.Abs(currentSpeed) < 0.1f && !braking)
+        if (transform.position.y <= -20)
         {
-            PlayOnce(idleSound);
-            StopSound(accelerateSound);
-            StopSound(brakeSound);
-            StopSound(driftSound);
-        }
-        // Accelerating forward
-        else if (input.y > 0.1f && !braking)
-        {
-            PlayOnce(accelerateSound);
-            StopSound(idleSound);
-            StopSound(brakeSound);
-            StopSound(driftSound);
-        }
-        // Braking
-        else if (braking)
-        {
-            PlayOnce(brakeSound);
-            StopSound(idleSound);
-            StopSound(accelerateSound);
-            StopSound(driftSound);
+            Reset();
         }
 
-        // Drift sound when turning while braking or reversing
-        if ((braking || input.y < -0.1f) && Mathf.Abs(input.x) > 0.1f)
-            PlayOnce(driftSound);
-        else
-            StopSound(driftSound);
     }
 
-    private void PlayOnce(AudioSource source)
+    private void Reset()
     {
-        if (source != null && !source.isPlaying)
-            source.Play();
-    }
-
-    private void StopSound(AudioSource source)
-    {
-        if (source != null && source.isPlaying)
-            source.Stop();
+        SceneManager.LoadScene("Mainscene");
     }
 }
