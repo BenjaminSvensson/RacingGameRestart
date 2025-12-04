@@ -1,7 +1,5 @@
-using UnityEditor.SearchService;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using TMPro;
 
 public class Car : MonoBehaviour
@@ -15,11 +13,18 @@ public class Car : MonoBehaviour
     [SerializeField] GameObject[] brakelights;
     [SerializeField] TextMeshPro speedText;
 
-    private float currentSpeed = 0f;
+   
     public InputAction move;
     public InputAction brake;
 
-  
+    private float currentSpeed = 0f;
+    private Checkpoint checkpointScript;
+    private Vector3 checkPointLocation;
+
+    private void Start()
+    {
+        checkPointLocation = transform.position;
+    }
 
     void OnEnable()
     {
@@ -61,13 +66,19 @@ public class Car : MonoBehaviour
 
         if (transform.position.y <= -20)
         {
-            Reset();
+            Reseting();
         }
 
     }
 
-    private void Reset()
+    public void setNewCheckpointPosition()
     {
-        SceneManager.LoadScene("Mainscene");
+        checkPointLocation = transform.position;
+    }
+    
+    //RespawnCar To Last Checkpoint 
+    private void Reseting()
+    {
+        transform.position = checkPointLocation;
     }
 }
