@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using TMPro;
+using UnityEngine.SceneManagement;
+using System.Diagnostics;
+using System;
 
 public class Car : MonoBehaviour
 {
@@ -11,31 +14,43 @@ public class Car : MonoBehaviour
     [SerializeField] float driftTurnMultiplier = 2f;
 
     [SerializeField] GameObject[] brakelights;
-    [SerializeField] TextMeshPro speedText;
-
+    [SerializeField] TMP_Text speedText;
+    [SerializeField] TMP_Text timerText;
+    [SerializeField] TMP_Text bestTimeText;
+    private Stopwatch timer;
+    
    
     public InputAction move;
     public InputAction brake;
+    public InputAction resetAction;
 
     private float currentSpeed = 0f;
-    private Checkpoint checkpointScript;
     private Vector3 checkPointLocation;
+    private Quaternion checkPointRotation;
+    private TimeSpan bestTime = TimeSpan.MaxValue;
 
     private void Start()
     {
         checkPointLocation = transform.position;
+        checkPointRotation = transform.rotation;
+
+        timer = Stopwatch.StartNew();
     }
 
     void OnEnable()
     {
         move.Enable();
         brake.Enable();
+        resetAction.Enable();
+        resetAction.performed += OnReset;
     }
 
     void OnDisable()
     {
         move.Disable();
         brake.Disable();
+        resetAction.Disable();
+        resetAction.performed -= OnReset;
     }
 
     private void Update()
@@ -69,16 +84,41 @@ public class Car : MonoBehaviour
             Reseting();
         }
 
+       speedText.text = currentSpeed.ToString("F0") + " Km/h";
+
+       timerText.text = timer.Elapsed.ToString(@"mm\:ss\:ff");
     }
 
     public void setNewCheckpointPosition()
     {
         checkPointLocation = transform.position;
+        checkPointRotation = transform.rotation;
     }
     
     //RespawnCar To Last Checkpoint 
-    private void Reseting()
+    private void Reseting() 
     {
         transform.position = checkPointLocation;
+        transform.rotation = checkPointRotation;
+        currentSpeed = 0f;
     }
+    private void OnReset(InputAction.CallbackContext ctx)
+    {
+        SceneManager.LoadScene("Mainscene");
+    }
+    public void OnTriggerEnter(Collider collision)
+    {
+
+        if (collision.gameObject.CompareTag("Finish"))
+        {
+            if (timer.Elapsed < bestTime) 
+            {
+                bestTime = timer.Elapsed;
+                bestTimeText.text = "BestTime: " + bestTime.ToString(@"mm\:ss\:ff"); 
+            }
+            timer.Reset();
+            timer.Start();
+        }
+    }
+    
 }

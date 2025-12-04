@@ -1,12 +1,12 @@
-using JetBrains.Annotations;
 using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
     [SerializeField] GameObject player;
+    [SerializeField] Car carScript;
     public GameObject checkpointPositionRoot;
 
-    private Car carScript;
+    
 
     public Vector3 playerRespawnPosition;
 
@@ -24,3 +24,4 @@ public class Checkpoint : MonoBehaviour
         }
     }
 } 
+
