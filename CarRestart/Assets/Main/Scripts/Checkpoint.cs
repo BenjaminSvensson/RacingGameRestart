@@ -4,13 +4,14 @@ public class Checkpoint : MonoBehaviour
 {
     [SerializeField] GameObject player;
     [SerializeField] Car carScript;
+
+    public int checkpointAmount;
+
+
     public GameObject checkpointPositionRoot;
-
-    
-
     public Vector3 playerRespawnPosition;
 
-    private void Start()
+    private void Start() 
     {
         playerRespawnPosition = player.transform.position;
     }
@@ -21,6 +22,7 @@ public class Checkpoint : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             carScript.setNewCheckpointPosition();
+            checkpointAmount += 1;
         }
     }
 } 

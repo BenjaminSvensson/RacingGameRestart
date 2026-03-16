@@ -7,6 +7,7 @@ using System;
 
 public class Car : MonoBehaviour
 {
+    //Car statVariables
     [SerializeField] float speed = 13f;
     [SerializeField] float turnSpeed = 180f;
     [SerializeField] float acceleration = 5f;
@@ -14,29 +15,32 @@ public class Car : MonoBehaviour
     [SerializeField] float driftTurnMultiplier = 2f;
 
     [SerializeField] GameObject[] brakelights;
+
+    //Textpjects
     [SerializeField] TMP_Text speedText;
     [SerializeField] TMP_Text timerText;
     [SerializeField] TMP_Text bestTimeText;
+    [SerializeField] Checkpoint checkpoint;
     private Stopwatch timer;
     
-   
+   //Input actions 
     public InputAction move;
     public InputAction brake;
     public InputAction resetAction;
 
+    //Currently set variables
     private float currentSpeed = 0f;
     private Vector3 checkPointLocation;
     private Quaternion checkPointRotation;
     private TimeSpan bestTime = TimeSpan.MaxValue;
 
     private void Start()
-    {
+    { 
         checkPointLocation = transform.position;
         checkPointRotation = transform.rotation;
 
         timer = Stopwatch.StartNew();
     }
-
     void OnEnable()
     {
         move.Enable();
@@ -88,7 +92,8 @@ public class Car : MonoBehaviour
 
        timerText.text = timer.Elapsed.ToString(@"mm\:ss\:ff");
     }
-
+   
+    //Checkpoint
     public void setNewCheckpointPosition()
     {
         checkPointLocation = transform.position;
@@ -113,12 +118,19 @@ public class Car : MonoBehaviour
         {
             if (timer.Elapsed < bestTime) 
             {
-                bestTime = timer.Elapsed;
-                bestTimeText.text = "BestTime: " + bestTime.ToString(@"mm\:ss\:ff"); 
+                if (checkpoint.checkpointAmount >= 3)
+                {
+                    bestTime = timer.Elapsed;
+                    bestTimeText.text = "BestTime: " + bestTime.ToString(@"mm\:ss\:ff"); 
+                }
+                else
+                {
+                    bestTimeText.text = "Cheater!";
+                }
+                
             }
             timer.Reset();
             timer.Start();
         }
     }
-    
 }
